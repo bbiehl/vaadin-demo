@@ -43,6 +43,6 @@ public class MainLayout extends AppLayout {
         listLink.setHighlightCondition(HighlightConditions.sameLocation());
 
         // Wraps the link in a Vertical Layout and adds it to the Applayout's drawer.
-        addToDrawer(new VerticalLayout(listLink));
+        addToDrawer(new VerticalLayout(listLink, new RouterLink("DashBoard", DashboardView.class)));
     }
 }

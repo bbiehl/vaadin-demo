@@ -1,6 +1,9 @@
 package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
+
+import org.hibernate.annotations.Formula;
+
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -31,5 +34,13 @@ public class Company extends AbstractEntity {
 
     public void setEmployees(List<Contact> employees) {
         this.employees = employees;
+    }
+
+    // The Formula gets the count of employees without needing to fetch all the employees.
+    @Formula("(select count(c.id) from Contact c where c.company_id = id)")
+    private int employeeCount;
+
+    public int getEmployeeCount() {
+        return employeeCount;
     }
 }
