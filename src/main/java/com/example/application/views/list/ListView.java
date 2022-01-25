@@ -2,7 +2,6 @@ package com.example.application.views.list;
 
 import com.example.application.data.entity.Contact;
 import com.example.application.data.service.CrmService;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -29,10 +28,13 @@ public class ListView extends VerticalLayout {
 
         add(getToolbar(), getContent());
         updateList();
+        closeEditor();
     }
 
-    private void updateList() {
-        grid.setItems(service.findAllContacts(filterText.getValue()));
+    private void closeEditor() {
+        form.setContact(null);
+        form.setVisible(false);
+        removeClassName("editing");
     }
 
     private void configureGrid() {
@@ -42,6 +44,17 @@ public class ListView extends VerticalLayout {
         grid.addColumn(contact -> contact.getStatus().getName()).setHeader("Status");
         grid.addColumn(contact -> contact.getCompany().getName()).setHeader("Company");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+        grid.asSingleSelect().addValueChangeListener(event -> editContact(event.getValue()));
+    }
+
+    public void editContact(Contact contact) {
+        if (contact == null) {
+            closeEditor();
+        } else {
+            form.setContact(contact);
+            form.setVisible(true);
+            addClassName("editing");
+        }
     }
 
     private void configureForm() {
@@ -55,17 +68,27 @@ public class ListView extends VerticalLayout {
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
         Button addContactButton = new Button("Add contact");
+        addContactButton.addClickListener(click -> addContact());
         HorizontalLayout toolbar = new HorizontalLayout(filterText, addContactButton);
         toolbar.addClassName("toolbar");
         return toolbar;
     }
 
-    private Component getContent() {
+    private void addContact() {
+        grid.asSingleSelect().clear();
+        editContact(new Contact());
+    }
+
+    private HorizontalLayout getContent() {
         HorizontalLayout content = new HorizontalLayout(grid, form);
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, form);
         content.addClassNames("content");
         content.setSizeFull();
         return content;
+    }
+
+    private void updateList() {
+        grid.setItems(service.findAllContacts(filterText.getValue()));
     }
 }
